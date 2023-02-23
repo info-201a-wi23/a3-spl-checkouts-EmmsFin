@@ -47,12 +47,12 @@ When we say "clear" or "human readable" titles and labels, that means that you s
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, warning = FALSE}
+``````{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Question: Are Victoria Scwabs old books or new books more popular within the last year?
+
 #load Libraries
 library("dplyr")
 library("ggplot2")
-
-# Question: Are VE Scwabs old books or new books more popular within the last year?
 
 # load Data Frame
 Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
@@ -63,7 +63,7 @@ last_year_df <- Schwab_df %>%
   mutate(PublicationYear = gsub("\\[", "", PublicationYear)) %>%
   mutate(PublicationYear = gsub("\\]", "", PublicationYear)) %>%
   mutate(PublicationYear = gsub("\\.", "", PublicationYear)) %>%
-  group_by(PublicationYear, CheckoutMonth) %>%
+  group_by(PublicationYear) %>%
   summarise(Checkouts = sum(Checkouts)) %>%
   mutate(PublicationYear = as.integer(PublicationYear))
 
@@ -98,32 +98,37 @@ When we say "clear" or "human readable" titles and labels, that means that you s
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, code = readLines("chart2_example.R")}
+``````{r, echo = FALSE}
+# Question: Is Victoria Schwabs popularity growing or decreasing? If decreasing, which year was her most popular? 
+
 #load Libraries
 library("dplyr")
 library("ggplot2")
-
-# Question: Are VE Scwabs old books or new books more popular within the last year?
 
 # load Data Frame
 Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
 
 # modify Data Frame
-???_df <- Schwab_df %>%
+most_checked_df <- Schwab_df %>%
+  filter(CheckoutYear != "2023") %>%
+  filter(CheckoutYear != "2011") %>%
+  group_by(CheckoutYear) %>%
+  summarise(Checkouts = sum(Checkouts))
+  
   
 
 
 # make chart
-??? <- ggplot(???) +
-  geom_line(aes(x = ???,
-                y = ???)) +
-  scale_x_continuous(breaks = seq(???)) +
-  labs(x = "???", 
-       y = "???",
-       title = "???")
+Checkouts_year <- ggplot(most_checked_df) +
+  geom_line(aes(x = CheckoutYear,
+                y = Checkouts)) +
+  scale_x_continuous(breaks = seq(2012, 2022, 1)) +
+  labs(x = "Year of Checkout", 
+       y = "Amount of Checkouts in Any Medium",
+       title = "Victoria Schwab's Popularity Over the Years")
 
 # call chart
-???
+Checkouts_year
   
 ```
 
@@ -137,7 +142,42 @@ The last chart is up to you. It could be a line plot, scatter plot, histogram, b
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, code = readLines("chart2_example.R")}
+``````{r, echo = FALSE}
+# Question: Which Victoria Schwab book is the most popular in the past year?
+
+#load Libraries
+library("dplyr")
+library("ggplot2")
+
+# load Data Frame
+Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+
+# modify Data Frame
+popular_df <- Schwab_df %>%
+  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
+  select(Title, Checkouts) %>%
+  mutate(Title = gsub("/ V. E. Schwab.", "", Title)) %>%
+  mutate(Title = gsub("/ V.E. Schwab.", "", Title)) %>%
+  mutate(Title = gsub("/ Victoria Schwab\\.", "", Title)) %>%
+  mutate(Title = gsub("/ writer, V.E. Schwab ; artist, Enid Balám ; colorist, Jordi Escuin Liorach ; letterer, Rob Steen.", "", Title)) %>%
+  mutate(Title = gsub("; \\[Interior illustrations by Manuel Šumberac\\].", "", Title)) %>%
+  mutate(Title = gsub("La vida invisible de Addie Larue ; traducción de Patricia Sebastián.", "The invisible life of Addie LaRue ", Title)) %>%
+  mutate(Title = gsub(". 1 ", "", Title)) %>%
+  mutate(Title = trimws(Title)) %>%
+  group_by(Title) %>%
+  summarise(Checkouts = sum(Checkouts))
+
+# make chart
+Pop_book <- ggplot(popular_df) +
+  geom_col(aes(x = Checkouts,
+               y = Title,
+               fill = Checkouts)) +
+  labs(x = "Amount of Checkouts", 
+       y = "Victoria Schwab Books",
+       title = "Amount of Checkouts For Each Victoria Schwab Book")
+
+# call chart
+Pop_book
 ```
 
 
