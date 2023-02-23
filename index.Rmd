@@ -47,7 +47,38 @@ When we say "clear" or "human readable" titles and labels, that means that you s
 
 Here's an example of how to run an R script inside an RMarkdown file:
 
-``````{r, echo = FALSE, warning = FALSE, code = readLines("chart1_example.R")}
+``````{r, echo = FALSE, warning = FALSE}
+#load Libraries
+library("dplyr")
+library("ggplot2")
+
+# Question: Are VE Scwabs old books or new books more popular within the last year?
+
+# load Data Frame
+Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+
+# modify Data Frame
+last_year_df <- Schwab_df %>%
+  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
+  mutate(PublicationYear = gsub("\\[", "", PublicationYear)) %>%
+  mutate(PublicationYear = gsub("\\]", "", PublicationYear)) %>%
+  mutate(PublicationYear = gsub("\\.", "", PublicationYear)) %>%
+  group_by(PublicationYear, CheckoutMonth) %>%
+  summarise(Checkouts = sum(Checkouts)) %>%
+  mutate(PublicationYear = as.integer(PublicationYear))
+
+
+# make chart
+popularity <- ggplot(last_year_df) +
+  geom_line(aes(x = PublicationYear,
+                y = Checkouts)) +
+  scale_x_continuous(breaks = seq(2013, 2022, 1)) +
+  labs(x = "Publication Year", 
+       y = "Number of Checkouts in 2022",
+       title = "Victoria Schwab Books Checkout's This Year by Publication Year")
+
+# call chart
+popularity
 ```
 
 ### Second Trends Over Time Chart
@@ -68,6 +99,32 @@ When we say "clear" or "human readable" titles and labels, that means that you s
 Here's an example of how to run an R script inside an RMarkdown file:
 
 ``````{r, echo = FALSE, code = readLines("chart2_example.R")}
+#load Libraries
+library("dplyr")
+library("ggplot2")
+
+# Question: Are VE Scwabs old books or new books more popular within the last year?
+
+# load Data Frame
+Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+
+# modify Data Frame
+???_df <- Schwab_df %>%
+  
+
+
+# make chart
+??? <- ggplot(???) +
+  geom_line(aes(x = ???,
+                y = ???)) +
+  scale_x_continuous(breaks = seq(???)) +
+  labs(x = "???", 
+       y = "???",
+       title = "???")
+
+# call chart
+???
+  
 ```
 
 ### Your Choice
