@@ -181,3 +181,59 @@ Pop_book
 ```
 
 
+``````{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Question: Which month was most popular for each of Victoria Schwab's books in the past full year?
+
+#load Libraries
+library("dplyr")
+library("ggplot2")
+library("RColorBrewer")
+
+# load Data Frame
+Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+
+# modify Data Frame
+popular_df <- Schwab_df %>%
+  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
+  select(Title, Checkouts, CheckoutMonth) %>%
+  mutate(Title = gsub("/ V. E. Schwab.", "", Title)) %>%
+  mutate(Title = gsub("/ V.E. Schwab.", "", Title)) %>%
+  mutate(Title = gsub("/ Victoria Schwab\\.", "", Title)) %>%
+  mutate(Title = gsub("/ writer, V.E. Schwab ; artist, Enid Balám ; colorist, Jordi Escuin Liorach ; letterer, Rob Steen.", "", Title)) %>%
+  mutate(Title = gsub("; \\[Interior illustrations by Manuel Šumberac\\].", "", Title)) %>%
+  mutate(Title = gsub("La vida invisible de Addie Larue ; traducción de Patricia Sebastián.", "The invisible life of Addie LaRue ", Title)) %>%
+  mutate(Title = gsub(". 1 ", "", Title)) %>%
+  mutate(Title = trimws(Title)) %>%
+  mutate(Series = Title) %>%
+  mutate(Series = gsub("A conjuring of light", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("A darker shade of magic", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("A gathering of shadows", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("Bridge of souls", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("City of ghosts", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("Tunnel of bones", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("This savage song", "Monsters of Verity Series", Series)) %>%
+  mutate(Series = gsub("Our dark duet", "Monsters of Verity Series", Series)) %>%
+  mutate(Series = gsub("The archived", "The Archived Series", Series)) %>%
+  mutate(Series = gsub("The unbound : an Archived novel", "The Archived Series", Series)) %>%
+  mutate(Series = gsub("Vicious", "The Archived Series", Series)) %>%
+  mutate(Series = gsub("ExtraOrdinary", "Villans/ExtraOrdinary Series", Series)) %>%
+  group_by(Series, CheckoutMonth) %>%
+  summarise(Checkouts = sum(Checkouts))
+
+# make chart
+Pop_series <- ggplot(popular_df) +
+  geom_line(aes(x = CheckoutMonth,
+               y = Checkouts,
+               group = Series,
+               colour = Series),
+            show.legend = TRUE) +
+  scale_x_continuous(breaks = seq(1, 12, 1)) +
+  scale_fill_brewer(palette= 1) + 
+  labs(x = "Checkout Month", 
+       y = "Amount of Checkouts",
+       title = "Amount of Checkouts Per Month For Each Victoria Schwab Books and Series")
+
+# call chart
+Pop_series
+```
+
