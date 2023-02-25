@@ -5,7 +5,18 @@ output: html_document
 
 ### Introduction
 
-An introduction of the data and a description of the trends/books/items you are choosing to analyze (and why!)
+Victoria Schwab is an American fantasy and science fiction writer. She debuted her first novel, "The Near Witch" in 2011 and has spent the past 11 years building on this discography. She has published around 39 books, multiple short stories, and has adapted her stories into cinema. Her first TV Show "First Kill", based on her short story by the same name, was released on Netflix in June 2022. As Victoria Schwab's discography increases, new readers of her work need guidance on which books or series to start their Victoria Schwab journey with. This report, which examines data from Seattle Public Library, will look into the popularity of Victoria Schwabs books and series to offer a good starting point to her new audience. 
+
+Specifically, this report analyzes three important questions. The first questions is on which book series of Victoria Schwab's was the most popular, and which month was the most popular for each series? The second question asks which medium is the most popular and how has this changed over the years? Lastly, this report will answer which of Victoria Schwab's books is the most popular in the past year? To answer these questions, the key variables include:
+
+* Library checkouts:
+    * The amount of times a book is checked out of the library is used to quantify a particular books popularity. 
+* Time
+    * What is the trend of checking out Victoria Schwab books or series? In this report, both year and month are used as time frames to inform on the trend of popularity of each book. 
+* Books
+    * Which books or series hold the highest popularity? Victoria Schwab writes both stand alone novels and book series. This report looks into each book individually as well as books bundled with their series to give new audience members options of which type to begin their journey with. 
+* Mediums
+    * Which medium is Victoria Schwabs books typically enjoyed using? This variable encompass' physical books, eBooks, audiobooks, and soundisc's. Understanding the medium of engaging with the book will inform a new reader on whick medium they choose to engage the books with themselves. 
 
 ### Summary Information
 
@@ -19,6 +30,80 @@ These will likely be calculated using your DPLYR skills, answering questions suc
 - How has the number of print book checkouts changed over time?
 
 Feel free to calculate and report values that you find relevant.
+
+``````{r, echo = FALSE, message = FALSE, results ='hide'}
+# relevant calculations
+library("dplyr")
+library("stringr")
+Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+
+Schwab_df$Title <- tolower(Schwab_df$Title)
+Schwab_df$Title[str_detect(Schwab_df$Title, "vicious")] <- "Vicious"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a conjuring of light")] <- "A Conjuring of Light"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a gathering of shadows")] <- "A Gathering of Shadows"
+Schwab_df$Title[str_detect(Schwab_df$Title, "new beginnings")] <- "New Beginnings"
+Schwab_df$Title[str_detect(Schwab_df$Title, "broken ground")] <- "Broken Ground"
+Schwab_df$Title[str_detect(Schwab_df$Title, "this savage song")] <- "This Savage Song"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the unbound")] <- "The Unbound"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a darker shade of magic")] <- "A Darker Shade of Magic"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the near witch")] <- "The Near Witch"
+Schwab_df$Title[str_detect(Schwab_df$Title, "second chances")] <- "Second Chances"
+Schwab_df$Title[str_detect(Schwab_df$Title, "last wishes")] <- "Last Wishes"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the archived")] <- "The Archived"
+Schwab_df$Title[str_detect(Schwab_df$Title, "bridge of souls")] <- "Bridge of Souls"
+Schwab_df$Title[str_detect(Schwab_df$Title, "city of ghosts")] <- "City of Ghosts"
+Schwab_df$Title[str_detect(Schwab_df$Title, "conjuro de luz")] <- "A Conjuring of Light"
+Schwab_df$Title[str_detect(Schwab_df$Title, "extraordinary")] <- "ExtraOrdinary"
+Schwab_df$Title[str_detect(Schwab_df$Title, "gallant")] <- "Gallant"
+Schwab_df$Title[str_detect(Schwab_df$Title, "la vida invisible de addie larue")] <- "The Invisible Life of Addie LaRue"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the invisible life of addie larue")] <- "The Invisible Life of Addie LaRue"
+Schwab_df$Title[str_detect(Schwab_df$Title, "our dark duet")] <- "Our Dark Duet"
+Schwab_df$Title[str_detect(Schwab_df$Title, "tunnel of bones")] <- "Tunnel of Bones"
+Schwab_df$Title[str_detect(Schwab_df$Title, "vengeful")] <- "Vengeful"
+
+average <- Schwab_df %>% 
+  group_by(Title, CheckoutYear) %>%
+  summarise(Checkouts = mean(Checkouts, na.rm = T))
+
+total_checkouts <- Schwab_df %>% 
+  summarise(Checkouts = sum(Checkouts, na.rm = T))
+
+most_used_medium <- Schwab_df %>% 
+  group_by(MaterialType) %>%
+  summarise(Checkouts = sum(Checkouts, na.rm = T))
+
+most_popular_book <- Schwab_df %>% 
+  group_by(Title) %>%
+  summarise(Checkouts = sum(Checkouts, na.rm = T))
+
+most_popular_series <- Schwab_df %>% 
+  mutate(Series = Title) %>%
+  group_by(Series) %>%
+  filter(CheckoutYear == "2022") %>%
+  select(Title, Checkouts, CheckoutMonth) %>%
+  mutate(Series = gsub("A Conjuring of Light", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("A Darker Shade of Magic", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("A Gathering of Shadows", "Shades of Magic Series", Series)) %>%
+  mutate(Series = gsub("Bridge of Souls", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("City of Ghosts", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("City of Ghosts Series Series", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("Tunnel of Bones", "City of Ghosts Series", Series)) %>%
+  mutate(Series = gsub("This Savage Song", "Monsters of Verity Series", Series)) %>%
+  mutate(Series = gsub("Our Dark Duet", "Monsters of Verity Series", Series)) %>%
+  mutate(Series = gsub("The Archived", "The Archived Series", Series)) %>%
+  mutate(Series = gsub("The Unbound", "The Archived Series", Series)) %>%
+  mutate(Series = gsub("Vicious", "Villains Series", Series)) %>%
+  mutate(Series = gsub("Vengeful", "Villains Series", Series)) %>%
+  mutate(Series = gsub("ExtraOrdinary", "Villains Series", Series)) %>%
+  mutate(Series = gsub("New Beginnings", "Everyday Angel Series", Series)) %>%
+  mutate(Series = gsub("Last Wishes", "Everyday Angel Series", Series)) %>%
+  mutate(Series = gsub("Second Chances", "Everyday Angel Series", Series)) %>%
+  filter(Series != "N/A") %>% 
+  group_by(Series) %>%
+  summarise(Checkouts = sum(Checkouts, na.rm = T))
+
+
+```
 
 ### The Dataset
 
@@ -46,40 +131,67 @@ In your .Rmd file, make sure to describe why you included the chart, and what pa
 When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
 
 Here's an example of how to run an R script inside an RMarkdown file:
-
 ``````{r, echo = FALSE, warning = FALSE, message = FALSE}
-# Question: Are Victoria Scwabs old books or new books more popular within the last year?
+# Question: Which month was most popular for each of Victoria Schwab's series in the past full year? Which is Victoria Schwab's most popular book series? 
 
 #load Libraries
 library("dplyr")
 library("ggplot2")
+library("RColorBrewer")
 
 # load Data Frame
 Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
+Schwab_df$Title <- tolower(Schwab_df$Title)
+Schwab_df$Title[str_detect(Schwab_df$Title, "vicious")] <- "Villains Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a conjuring of light")] <- "Shades of Magic Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a gathering of shadows")] <- "Shades of Magic Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "new beginnings")] <- "Everyday Angel Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "broken ground")] <- "N/A"
+Schwab_df$Title[str_detect(Schwab_df$Title, "this savage song")] <- "Monsters of Verity Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the unbound")] <- "The Archived Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a darker shade of magic")] <- "Shades of Magic Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the near witch")] <- "N/A"
+Schwab_df$Title[str_detect(Schwab_df$Title, "second chances")] <- "Everyday Angel Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "last wishes")] <- "Everyday Angel Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the archived")] <- "The Archived Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "bridge of souls")] <- "City of Ghosts Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "city of ghosts")] <- "City of Ghosts Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "conjuro de luz")] <- "Shades of Magic Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "extraordinary")] <- "Villains Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "gallant")] <- "N/A"
+Schwab_df$Title[str_detect(Schwab_df$Title, "la vida invisible de addie larue")] <- "N/A"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the invisible life of addie larue")] <- "N/A"
+Schwab_df$Title[str_detect(Schwab_df$Title, "our dark duet")] <- "Monsters of Verity Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "tunnel of bones")] <- "City of Ghosts Series"
+Schwab_df$Title[str_detect(Schwab_df$Title, "vengeful")] <- "Villains Series"
 
 # modify Data Frame
-last_year_df <- Schwab_df %>%
-  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
-  mutate(PublicationYear = gsub("\\[", "", PublicationYear)) %>%
-  mutate(PublicationYear = gsub("\\]", "", PublicationYear)) %>%
-  mutate(PublicationYear = gsub("\\.", "", PublicationYear)) %>%
-  group_by(PublicationYear) %>%
-  summarise(Checkouts = sum(Checkouts)) %>%
-  mutate(PublicationYear = as.integer(PublicationYear))
-
+popular_df <- Schwab_df %>%
+  filter(CheckoutYear == "2022") %>%
+  select(Title, Checkouts, CheckoutMonth) %>%
+  mutate(Series = Title) %>%
+  group_by(Series, CheckoutMonth) %>%
+  summarise(Checkouts = sum(Checkouts))%>%
+  filter(Series != "N/A")
 
 # make chart
-popularity <- ggplot(last_year_df) +
-  geom_line(aes(x = PublicationYear,
-                y = Checkouts)) +
-  scale_x_continuous(breaks = seq(2013, 2022, 1)) +
-  labs(x = "Publication Year", 
-       y = "Number of Checkouts in 2022",
-       title = "Victoria Schwab Books Checkout's This Year by Publication Year")
+Pop_series <- ggplot(popular_df) +
+  geom_line(aes(x = CheckoutMonth,
+               y = Checkouts,
+               group = Series,
+               colour = Series),
+            show.legend = TRUE) +
+  scale_x_continuous(breaks = seq(1, 12, 1)) +
+  scale_fill_brewer(palette= 1) + 
+  labs(x = "Checkout Month", 
+       y = "Amount of Checkouts",
+       title = "Amount of Checkouts Per Month For Each Victoria Schwab Series")
 
 # call chart
-popularity
+Pop_series
 ```
+### Chart Summary
+describe why you included the chart, and what patterns emerged
 
 ### Second Trends Over Time Chart
 
@@ -91,15 +203,13 @@ The second chart that you will create and include will show another trend over t
   - For example, two books, or 5 different mediums
 - You must have clear x and y axis labels
 - The chart needs a clear title 
-- You need a legend for your different line colors and a clear - legend title
+- You need a legend for your different line colors ?
 In your .Rmd file, make sure to describe why you included the chart, and what patterns emerged
 
 When we say "clear" or "human readable" titles and labels, that means that you should not just display the variable name.
 
-Here's an example of how to run an R script inside an RMarkdown file:
-
-``````{r, echo = FALSE}
-# Question: Is Victoria Schwabs popularity growing or decreasing? If decreasing, which year was her most popular? 
+``````{r, echo = FALSE, warning = FALSE, message = FALSE}
+# Question: Is Victoria Schwabs popularity growing or decreasing? If decreasing, which year was her most popular? Which medium is the most popular and how has this changed over the years?
 
 #load Libraries
 library("dplyr")
@@ -112,7 +222,7 @@ Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
 most_checked_df <- Schwab_df %>%
   filter(CheckoutYear != "2023") %>%
   filter(CheckoutYear != "2011") %>%
-  group_by(CheckoutYear) %>%
+  group_by(CheckoutYear, MaterialType) %>%
   summarise(Checkouts = sum(Checkouts))
   
   
@@ -121,16 +231,21 @@ most_checked_df <- Schwab_df %>%
 # make chart
 Checkouts_year <- ggplot(most_checked_df) +
   geom_line(aes(x = CheckoutYear,
-                y = Checkouts)) +
+                y = Checkouts,
+                fill = MaterialType,
+                colour = MaterialType),
+                show.legend = TRUE) + 
   scale_x_continuous(breaks = seq(2012, 2022, 1)) +
   labs(x = "Year of Checkout", 
-       y = "Amount of Checkouts in Any Medium",
-       title = "Victoria Schwab's Popularity Over the Years")
+       y = "Amount of Checkouts",
+       title = "Victoria Schwab's Popularity Over the Years by Medium")
 
 # call chart
 Checkouts_year
   
 ```
+### Chart Summary
+describe why you included the chart, and what patterns emerged
 
 ### Your Choice
 
@@ -140,9 +255,7 @@ The last chart is up to you. It could be a line plot, scatter plot, histogram, b
 - The chart needs a clear title 
 - You need a legend for your different line colors and a clear legend title
 
-Here's an example of how to run an R script inside an RMarkdown file:
-
-``````{r, echo = FALSE}
+``````{r, echo = FALSE, warning = FALSE, message = FALSE}
 # Question: Which Victoria Schwab book is the most popular in the past year?
 
 #load Libraries
@@ -152,18 +265,34 @@ library("ggplot2")
 # load Data Frame
 Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
 
+Schwab_df$Title <- tolower(Schwab_df$Title)
+Schwab_df$Title[str_detect(Schwab_df$Title, "vicious")] <- "Vicious"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a conjuring of light")] <- "A Conjuring of Light"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a gathering of shadows")] <- "A Gathering of Shadows"
+Schwab_df$Title[str_detect(Schwab_df$Title, "new beginnings")] <- "New Beginnings"
+Schwab_df$Title[str_detect(Schwab_df$Title, "broken ground")] <- "Broken Ground"
+Schwab_df$Title[str_detect(Schwab_df$Title, "this savage song")] <- "This Savage Song"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the unbound")] <- "The Unbound"
+Schwab_df$Title[str_detect(Schwab_df$Title, "a darker shade of magic")] <- "A Darker Shade of Magic"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the near witch")] <- "The Near Witch"
+Schwab_df$Title[str_detect(Schwab_df$Title, "second chances")] <- "Second Chances"
+Schwab_df$Title[str_detect(Schwab_df$Title, "last wishes")] <- "Last Wishes"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the archived")] <- "The Archived"
+Schwab_df$Title[str_detect(Schwab_df$Title, "bridge of souls")] <- "Bridge of Souls"
+Schwab_df$Title[str_detect(Schwab_df$Title, "city of ghosts")] <- "City of Ghosts"
+Schwab_df$Title[str_detect(Schwab_df$Title, "conjuro de luz")] <- "A Conjuring of Light"
+Schwab_df$Title[str_detect(Schwab_df$Title, "extraordinary")] <- "ExtraOrdinary"
+Schwab_df$Title[str_detect(Schwab_df$Title, "gallant")] <- "Gallant"
+Schwab_df$Title[str_detect(Schwab_df$Title, "la vida invisible de addie larue")] <- "The Invisible Life of Addie LaRue"
+Schwab_df$Title[str_detect(Schwab_df$Title, "the invisible life of addie larue")] <- "The Invisible Life of Addie LaRue"
+Schwab_df$Title[str_detect(Schwab_df$Title, "our dark duet")] <- "Our Dark Duet"
+Schwab_df$Title[str_detect(Schwab_df$Title, "tunnel of bones")] <- "Tunnel of Bones"
+Schwab_df$Title[str_detect(Schwab_df$Title, "vengeful")] <- "Vengeful"
+
+
 # modify Data Frame
 popular_df <- Schwab_df %>%
-  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
-  select(Title, Checkouts) %>%
-  mutate(Title = gsub("/ V. E. Schwab.", "", Title)) %>%
-  mutate(Title = gsub("/ V.E. Schwab.", "", Title)) %>%
-  mutate(Title = gsub("/ Victoria Schwab\\.", "", Title)) %>%
-  mutate(Title = gsub("/ writer, V.E. Schwab ; artist, Enid Balám ; colorist, Jordi Escuin Liorach ; letterer, Rob Steen.", "", Title)) %>%
-  mutate(Title = gsub("; \\[Interior illustrations by Manuel Šumberac\\].", "", Title)) %>%
-  mutate(Title = gsub("La vida invisible de Addie Larue ; traducción de Patricia Sebastián.", "The invisible life of Addie LaRue ", Title)) %>%
-  mutate(Title = gsub(". 1 ", "", Title)) %>%
-  mutate(Title = trimws(Title)) %>%
+  filter(CheckoutYear == "2022") %>%
   group_by(Title) %>%
   summarise(Checkouts = sum(Checkouts))
 
@@ -179,61 +308,5 @@ Pop_book <- ggplot(popular_df) +
 # call chart
 Pop_book
 ```
-
-
-``````{r, echo = FALSE, warning = FALSE, message = FALSE}
-# Question: Which month was most popular for each of Victoria Schwab's books in the past full year?
-
-#load Libraries
-library("dplyr")
-library("ggplot2")
-library("RColorBrewer")
-
-# load Data Frame
-Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
-
-# modify Data Frame
-popular_df <- Schwab_df %>%
-  filter(CheckoutYear == "2022", UsageClass == "Physical", MaterialType == "BOOK") %>%
-  select(Title, Checkouts, CheckoutMonth) %>%
-  mutate(Title = gsub("/ V. E. Schwab.", "", Title)) %>%
-  mutate(Title = gsub("/ V.E. Schwab.", "", Title)) %>%
-  mutate(Title = gsub("/ Victoria Schwab\\.", "", Title)) %>%
-  mutate(Title = gsub("/ writer, V.E. Schwab ; artist, Enid Balám ; colorist, Jordi Escuin Liorach ; letterer, Rob Steen.", "", Title)) %>%
-  mutate(Title = gsub("; \\[Interior illustrations by Manuel Šumberac\\].", "", Title)) %>%
-  mutate(Title = gsub("La vida invisible de Addie Larue ; traducción de Patricia Sebastián.", "The invisible life of Addie LaRue ", Title)) %>%
-  mutate(Title = gsub(". 1 ", "", Title)) %>%
-  mutate(Title = trimws(Title)) %>%
-  mutate(Series = Title) %>%
-  mutate(Series = gsub("A conjuring of light", "Shades of Magic Series", Series)) %>%
-  mutate(Series = gsub("A darker shade of magic", "Shades of Magic Series", Series)) %>%
-  mutate(Series = gsub("A gathering of shadows", "Shades of Magic Series", Series)) %>%
-  mutate(Series = gsub("Bridge of souls", "City of Ghosts Series", Series)) %>%
-  mutate(Series = gsub("City of ghosts", "City of Ghosts Series", Series)) %>%
-  mutate(Series = gsub("Tunnel of bones", "City of Ghosts Series", Series)) %>%
-  mutate(Series = gsub("This savage song", "Monsters of Verity Series", Series)) %>%
-  mutate(Series = gsub("Our dark duet", "Monsters of Verity Series", Series)) %>%
-  mutate(Series = gsub("The archived", "The Archived Series", Series)) %>%
-  mutate(Series = gsub("The unbound : an Archived novel", "The Archived Series", Series)) %>%
-  mutate(Series = gsub("Vicious", "The Archived Series", Series)) %>%
-  mutate(Series = gsub("ExtraOrdinary", "Villans/ExtraOrdinary Series", Series)) %>%
-  group_by(Series, CheckoutMonth) %>%
-  summarise(Checkouts = sum(Checkouts))
-
-# make chart
-Pop_series <- ggplot(popular_df) +
-  geom_line(aes(x = CheckoutMonth,
-               y = Checkouts,
-               group = Series,
-               colour = Series),
-            show.legend = TRUE) +
-  scale_x_continuous(breaks = seq(1, 12, 1)) +
-  scale_fill_brewer(palette= 1) + 
-  labs(x = "Checkout Month", 
-       y = "Amount of Checkouts",
-       title = "Amount of Checkouts Per Month For Each Victoria Schwab Books and Series")
-
-# call chart
-Pop_series
-```
-
+### Chart Summary
+describe why you included the chart, and what patterns emerged
