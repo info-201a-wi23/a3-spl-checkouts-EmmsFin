@@ -19,19 +19,7 @@ Specifically, this report analyzes three important questions. The first question
     * Which medium is Victoria Schwabs books typically enjoyed using? This variable encompass' physical books, eBooks, audiobooks, and soundisc's. Understanding the medium of engaging with the book will inform a new reader on whick medium they choose to engage the books with themselves. 
 
 ### Summary Information
-
-Write a summary paragraph of findings that includes the 5 values calculated from your summary information R script
-
-These will likely be calculated using your DPLYR skills, answering questions such as:
-
-- What is the average number of checkouts for each item?
-- What is the month or year with the most/least checkouts for a book that you're interested in?
-- What is the month or year with the most/least checkouts for ebooks?
-- How has the number of print book checkouts changed over time?
-
-Feel free to calculate and report values that you find relevant.
-
-``````{r, echo = FALSE, message = FALSE, results ='hide'}
+```{r, echo = FALSE, message = FALSE, results ='hide'}
 # relevant calculations
 library("dplyr")
 library("stringr")
@@ -61,21 +49,37 @@ Schwab_df$Title[str_detect(Schwab_df$Title, "our dark duet")] <- "Our Dark Duet"
 Schwab_df$Title[str_detect(Schwab_df$Title, "tunnel of bones")] <- "Tunnel of Bones"
 Schwab_df$Title[str_detect(Schwab_df$Title, "vengeful")] <- "Vengeful"
 
-average <- Schwab_df %>% 
-  group_by(Title, CheckoutYear) %>%
-  summarise(Checkouts = mean(Checkouts, na.rm = T))
+# rise_df is the rise in checkouts per year and total in all years
+rise_df <- Schwab_df %>% 
+  group_by(CheckoutYear) %>%
+  summarise(Checkouts = sum(Checkouts, na.rm = T)) %>%
+  mutate(growth = lag(Checkouts, 1)) %>%  # the year before is in growth_pop
+  mutate(growth = ((Checkouts - growth) / growth) * 100) %>%
+  mutate(total_growth = ((Checkouts[12] - Checkouts[1]) / Checkouts[1] * 100)) %>%
+  filter(CheckoutYear != 2023)
 
-total_checkouts <- Schwab_df %>% 
-  summarise(Checkouts = sum(Checkouts, na.rm = T))
+rise_total <- rise_df$total_growth[1]
+greatest_rise <- max(rise_df$growth, na.rm = T)
+pop_year <- rise_df$CheckoutYear[which(rise_df$growth== greatest_rise)]
 
+# total_checkouts is the total amount of checkouts she has across all years
+
+total_checkouts <- sum(Schwab_df$Checkouts, na.rm = T)
+
+# most_used_medium are the mediums that are used the most across every book
 most_used_medium <- Schwab_df %>% 
   group_by(MaterialType) %>%
-  summarise(Checkouts = sum(Checkouts, na.rm = T))
+  summarise(Checkouts = sum(Checkouts, na.rm = T)) %>%
+  arrange(desc(Checkouts)) %>%
+  mutate(MaterialType = tolower(MaterialType))
 
+# Most_popular_book is a list of which books are most popular by checkouts
 most_popular_book <- Schwab_df %>% 
   group_by(Title) %>%
-  summarise(Checkouts = sum(Checkouts, na.rm = T))
+  summarise(Checkouts = sum(Checkouts, na.rm = T)) %>%
+   arrange(desc(Checkouts))
 
+# Most_popular_series is a list of which series are the most popular by checkouts
 most_popular_series <- Schwab_df %>% 
   mutate(Series = Title) %>%
   group_by(Series) %>%
@@ -98,12 +102,18 @@ most_popular_series <- Schwab_df %>%
   mutate(Series = gsub("New Beginnings", "Everyday Angel Series", Series)) %>%
   mutate(Series = gsub("Last Wishes", "Everyday Angel Series", Series)) %>%
   mutate(Series = gsub("Second Chances", "Everyday Angel Series", Series)) %>%
-  filter(Series != "N/A") %>% 
+  filter(Series != "Broken Ground", Series != "The Invisible Life of Addie LaRue", Series != "Gallant", Series != "The Near Witch") %>% 
   group_by(Series) %>%
-  summarise(Checkouts = sum(Checkouts, na.rm = T))
-
+  summarise(Checkouts = sum(Checkouts, na.rm = T))%>%
+   arrange(desc(Checkouts))
 
 ```
+
+Victoria Schwab's fame as a writer has been steadily increasing throughout the years with a **`r rise_total`%** increase since 2011 when she released her first novel "The Near Witch." The year with the highest marked growth was in **`r pop_year`** with a **`r greatest_rise`%** increase from the year prior. Her most popular book at this point of her career is **`r most_popular_book$Title[1]`** with **`r most_popular_book$Checkouts[1]`** checkouts out of the **`r total_checkouts`** checkouts of Victoria Scwabs work. For a newcomer to Victoria Schwabs discography looking for a stand alone book, **`r most_popular_book$Title[1]`'s** popularity indicates that **`r most_popular_book$Title[1]`** might be a good place to start. Victoria Schwabs second most checked out books is **`r most_popular_book$Title[2]`** with **`r most_popular_book$Checkouts[2]`** checkouts in total. If the first book does not appeal to the reader, **`r most_popular_book$Title[2]`** would likely be another good place to start her discography.
+
+In terms of most popular series, **`r most_popular_series$Series[1]`** is the series with the highest amount of checkouts, with **`r most_popular_series$Checkouts[1]`** checkouts in total. Her second most popular series is the **`r most_popular_series$Series[2]`** with **`r most_popular_series$Checkouts[2]`** checkouts. These two series would be a good starting point for a reader looking for a series over a stand alone novel. 
+
+When it comes to the method of engaging with Victoria Schwabs works, the most used medium for people checking out her work from the library is an **`r most_used_medium$MaterialType[1]`**. Out of the **`r total_checkouts`** checkouts of Victoria Scwabs work, **`r most_used_medium$Checkouts[1]`** of these checkouts have been in **`r most_used_medium$MaterialType[1]`** format. The second most common method for accessing her material is through **`r most_used_medium$MaterialType[2]`**, with **`r most_used_medium$Checkouts[2]`** out of the **`r total_checkouts`** total checkouts of Victoria Schwab books checked out being **`r most_used_medium$MaterialType[2]`'s**. For beginners without a preference in methods for engaging in material, these two methods are seen as the preferred method for accessing her material to library goers and worth considering engaging in her discography with. 
 
 ### The Dataset
 
