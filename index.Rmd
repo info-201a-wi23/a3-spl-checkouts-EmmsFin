@@ -133,6 +133,7 @@ There are a few limitations to this data. One limitation is the structure of the
 #load Libraries
 library("dplyr")
 library("ggplot2")
+library("stringr")
 library("RColorBrewer")
 
 # load Data Frame
@@ -181,17 +182,14 @@ Pop_series <- ggplot(popular_df) +
   scale_fill_brewer(palette= 1) + 
   labs(x = "Checkout Month", 
        y = "Amount of Checkouts",
-       title = "Amount of Checkouts Per Month For Each Victoria Schwab Series")
+       title = "Victoria Schwab Book Series Checkouts During 2022")
 
 # call chart
 Pop_series
 ```
 
 ### Chart Summary
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
-
-make sure to describe why you included the chart, and what patterns emerged
-
+This chart displays the trends of checkouts for each of Victoria Schwabs book series in the past year, 2022. One thing to note in this graph is that Victoria Schwab has a book series named "Everyday Angel" which is not displayed on this graph. The reason that this series is absent from the graph is that the last checkout date for any book in this series was in April 2017. This chart is important for any new comer to Victoria Scwabs discography. The graph makes a clear distinction between which series of Victoria Schwabs are the most popular. Victoria Scwab did not release any new series or books in a series during 2022, so the popularity of a series will not be affected in any particular month by their release. A pattern that arosee in this chart is that the popularity of any individual series did not change in terms of another series throughout the year. The popularity of each series during 2022 from greatest to lowest was, "Shades of Magic", "Villans", "City of Ghosts", "Monsters of Verity", and "The Archived".
 
 ### Second Trends Over Time Chart
 ``````{r, echo = FALSE, warning = FALSE, message = FALSE}
@@ -224,7 +222,7 @@ Checkouts_year <- ggplot(most_checked_df) +
   scale_x_continuous(breaks = seq(2012, 2022, 1)) +
   labs(x = "Year of Checkout", 
        y = "Amount of Checkouts",
-       title = "Victoria Schwab's Popularity Over the Years by Medium")
+       title = "Medium's Used to Engage With Victoria Schwab's Work")
 
 # call chart
 Checkouts_year
@@ -232,10 +230,7 @@ Checkouts_year
 ```
 
 ### Chart Summary
-Include a chart. Make sure to describe why you included the chart, and what patterns emerged
-
-make sure to describe why you included the chart, and what patterns emerged
-
+This chart shows the top mediums of engaging with Victoria Schwabs discography over the years that she has been active. It is importants to not that this graph excludes the years 2011 and 2023 because she has not been active for the entirety of these years. This chart informs new readers which form of accessing Victoria Schwabs works are preferred by her fan base. From this chart, eBooks emerge as the preferred method of engaging with Victoria Schwabs discography. The second most popular medium is audiobooks. The use of physical books have seen saw and all time low at 2020, but picked up again at 2021 before beginning its decent again in 2022. The least common method of engaging with her works is through sounddisc, which has been consistently low since its introduction in 2015.
 
 ### Bar Chart
 ``````{r, echo = FALSE, warning = FALSE, message = FALSE}
@@ -244,6 +239,7 @@ make sure to describe why you included the chart, and what patterns emerged
 #load Libraries
 library("dplyr")
 library("ggplot2")
+library("stringr")
 
 # load Data Frame
 Schwab_df <- read.csv("Schwab_Checkouts_by_Title.csv", stringsAsFactors = F)
@@ -286,12 +282,12 @@ Pop_book <- ggplot(popular_df) +
                fill = Checkouts)) +
   labs(x = "Amount of Checkouts", 
        y = "Victoria Schwab Books",
-       title = "Amount of Checkouts For Each Victoria Schwab Book")
+       title = "Checkouts of Each Victoria Schwab Book During 2022")
 
 # call chart
 Pop_book
 ```
 ### Chart Summary
-Make sure to describe why you included the chart, and what patterns emerged
+This chart displays the amount of checkouts for each of Victoria Schwabs Books during 2022. It is important to note that the book "Gallant" was released March 1st, 2022. This release date might impact the popularity of the book in this chart. This chart is important for new commers to Victoria Schwabs work's because it visually explains which books are the most popular. By looking at this chart, the decision of which book to begin consuming Schwabs works with should be a much simpler choice. 
 
-make sure to describe why you included the chart, and what patterns emerged
+From this chart, there is a clear preference by readers towards the book "The Invisible Life of Addie LaRue" with this book having over 6,000 checkouts in the last year. The next book that is commonly checked out is "A Darker Shade of Magic" with a little over 1,000 checkouts in the last year.
